@@ -52,7 +52,8 @@ def serialisePreds(predictions):
         topPreds.append((letter, round(accuracy*100, 2)))
     return topPreds
 
-#curl -d 'hello' -H "Content-Type: application/json" -X POST http://localhost:5000/predict
+# curl -d 'hello' -H "Content-Type: application/json" -X POST http://localhost:5000/predict
+# curl -d 'hello' -H "Content-Type: application/json" -X POST https://sign-interpreter-api.herokuapp.com/predict
 
 @app.route("/", methods=["POST"])
 def index():
