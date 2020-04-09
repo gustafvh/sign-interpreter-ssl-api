@@ -1,0 +1,16 @@
+entrypoint: "gunicorn -b :$PORT main:app --timeout 500"
+runtime: python
+env: standard
+threadsafe: true
+
+runtime_config:
+  python_version: 3
+
+libraries:
+  - name: ssl
+    version: latest
+
+handlers:
+  - url: /.*
+    script: main.app
+

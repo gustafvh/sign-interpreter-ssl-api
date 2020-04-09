@@ -9,6 +9,13 @@ import numpy as np
 import flask
 import io
 
+# Boot up production server with:
+# gunicorn -b 127.0.0.1:5000 main:app
+
+# Boot up development server with:
+# py main.py
+
+# Make request with curl (or programmatically with testRequest.py:
 # curl -X POST -F image=@H2.jpg 'http://localhost:5000/predict'
 # Gives Response:
 # {"letterSent":"H","predictions":[["H",100.0],["C",0.0],["F",0.0]]}
@@ -32,6 +39,12 @@ def prepare_image(image, target):
     image = preprocess_input(image)
 
     return image
+
+
+@app.route("/", methods=["POST"])
+
+def index():
+    return flask.jsonify("Connected to API.")
 
 @app.route("/predict", methods=["POST"])
 
@@ -75,7 +88,10 @@ def serialisePreds(predictions):
         topPreds.append((letter, round(accuracy*100, 2)))
     return topPreds
 
-if __name__ == "__main__":
-    print("Loading Model...")
-    load_model()
+
+print("Loading Model...")
+load_model() #Load model before apps run to prevent long loading time
+print("Model Loaded. Starting Server...")
+
+if __name__ == "__main__":  #if running on development
     app.run(threaded=False)
