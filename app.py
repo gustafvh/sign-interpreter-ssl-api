@@ -1,17 +1,55 @@
-from flask import Flask, jsonify, request, render_template
+#Run with py app.py
+
+from keras.preprocessing.image import img_to_array
+from tensorflow.keras.applications.mobilenet import preprocess_input
+
 from tensorflow.keras import models
 from PIL import Image
-from tensorflow.keras.preprocessing import image
 import numpy as np
-from tensorflow.keras.applications.mobilenet import preprocess_input
-import logging
+import flask
+import io
+
+# curl -X POST -F image=@H2.jpg 'http://localhost:5000/predict'
+# Gives Response:
+# {"letterSent":"H","predictions":[["H",100.0],["C",0.0],["F",0.0]]}
+
+app = flask.Flask(__name__)
+model = None
+
+def load_model():
+    global model
+    model = models.load_model("./model88.hdf5")
 
 
+def prepare_image(image, target):
 
-app = Flask(__name__)
+    if image.mode != "RGB":
+        image = image.convert("RGB")
 
-def echo():
-    return "hello from test"
+    image = image.resize(target)
+    image = img_to_array(image)
+    image = np.expand_dims(image, axis=0)
+    image = preprocess_input(image)
+
+    return image
+
+@app.route("/predict", methods=["POST"])
+
+def predict():
+    if flask.request.method == "POST":
+        if flask.request.files.get("image"):
+            image = flask.request.files["image"].read()
+            image = Image.open(io.BytesIO(image))
+
+            image = prepare_image(image, target=(224, 224))
+
+            predictions = model.predict(image)
+
+            predictions = getTopPredictions(predictions[0])
+            predictions = serialisePreds(predictions)
+            response = {'predictions': predictions, 'letterSent': 'H'}
+
+    return flask.jsonify(response)
 
 def getTopPredictions(preds):
     predsDict = {
@@ -30,21 +68,6 @@ def getTopPredictions(preds):
     top_preds = [all_preds[0], all_preds[1], all_preds[2]]
     return top_preds, all_preds
 
-def getModel():
-    model = models.load_model("./model96.hdf5")
-    return model
-
-def predictSingleImage(filepath, model):
-    inputImage = Image.open(filepath)
-    inputImage = inputImage.resize((224, 224))
-
-    imageDataArray = image.img_to_array(inputImage)
-    imageDataArray = np.expand_dims(imageDataArray, axis=0)
-    imageDataArray = preprocess_input(imageDataArray)
-
-    predictions = model.predict(imageDataArray)
-    return predictions
-
 def serialisePreds(predictions):
     topPreds = []
     for i, pred in enumerate(predictions[0], start=0):
@@ -52,25 +75,7 @@ def serialisePreds(predictions):
         topPreds.append((letter, round(accuracy*100, 2)))
     return topPreds
 
-# curl -d 'hello' -H "Content-Type: application/json" -X POST http://localhost:5000/predict
-# curl -d 'hello' -H "Content-Type: application/json" -X POST https://sign-interpreter-api.herokuapp.com/predict
-
-@app.route("/", methods=["POST"])
-def index():
-    return 'Welcome to our KEX'
-
-@app.route("/predict", methods=["POST"])
-def predict():
-    loaded_model = getModel()
-    predictions = predictSingleImage("./G1.jpg", loaded_model)
-    predictions = getTopPredictions(predictions[0])
-    predictions = serialisePreds(predictions)
-    response = {'predictions': predictions, 'letterSent': 'G'}
-    return jsonify(response)
-
-@app.errorhandler(500)
-def server_error(e):
-    # Log the error and stacktrace.
-    logging.exception('An error occurred during a request.')
-    return 'An internal error occurred.', 500
-# [END app]
+if __name__ == "__main__":
+    print("Loading Model...")
+    load_model()
+    app.run(threaded=False)
