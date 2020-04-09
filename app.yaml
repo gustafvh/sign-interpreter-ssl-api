@@ -6,10 +6,6 @@ threadsafe: true
 runtime_config:
   python_version: 3
 
-libraries:
-  - name: ssl
-    version: latest
-
 handlers:
   - url: /.*
     script: main.app
