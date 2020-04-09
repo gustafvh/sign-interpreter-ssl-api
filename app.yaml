@@ -1,5 +1,5 @@
 entrypoint: "gunicorn -b :$PORT main:app --timeout 500"
-runtime: python
+runtime: python37
 env: standard
 threadsafe: true
 
