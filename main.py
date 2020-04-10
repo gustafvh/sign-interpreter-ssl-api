@@ -1,6 +1,4 @@
-#Run with py app.py
-
-from keras.preprocessing.image import img_to_array
+from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.applications.mobilenet import preprocess_input
 
 from tensorflow.keras import models
@@ -91,7 +89,7 @@ def serialisePreds(predictions):
 
 print("Loading Model...")
 load_model() #Load model before apps run to prevent long loading time
-print("Model Loaded. Starting Server...")
+print("Model Loaded. Server Running")
 
-# if __name__ == "__main__":  #if running on development
-#     app.run(threaded=False)
+if __name__ == "__main__":  #if running on development
+    app.run(threaded=False)
