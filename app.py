@@ -15,6 +15,7 @@ import io
 
 # Make request with curl (or programmatically with testRequest.py:
 # curl -X POST -F image=@H2.jpg 'http://localhost:5000/predict'
+# curl -X POST -F image=@H2.jpg 'http://35.198.151.110/predict'
 # Gives Response:
 # {"letterSent":"H","predictions":[["H",100.0],["C",0.0],["F",0.0]]}
 
@@ -23,7 +24,7 @@ model = None
 
 def load_model():
     global model
-    model = models.load_model("./model88.hdf5")
+    model = models.load_model("./assets/model-quiet-dew-32.h5")
 
 
 def prepare_image(image, target):
@@ -58,7 +59,17 @@ def predict():
 
             predictions = getTopPredictions(predictions[0])
             predictions = serialisePreds(predictions)
-            response = {'predictions': predictions, 'letterSent': 'H'}
+            response = {
+                'success': True,
+                'predictions': [{
+                    'letter': predictions[0][0],
+                    'confidence': predictions[0][1]},{
+                    'letter': predictions[1][0],
+                    'confidence': predictions[1][1]},{
+                    'letter': predictions[2][0],
+                    'confidence': predictions[2][1]
+                    }]
+            }
 
     return flask.jsonify(response)
 
@@ -82,14 +93,19 @@ def getTopPredictions(preds):
 def serialisePreds(predictions):
     topPreds = []
     for i, pred in enumerate(predictions[0], start=0):
-        letter, accuracy = predictions[0][i]
-        topPreds.append((letter, round(accuracy*100, 2)))
+        letter, confidence = predictions[0][i]
+        topPreds.append((letter, round(confidence*100, 8)))
     return topPreds
 
+@app.errorhandler(500)
+def internal_server_error(error):
+    response = {'success': False}
+    return flask.jsonify(response)
 
 print("Loading Model...")
 load_model() #Load model before apps run to prevent long loading time
-print("Model Loaded. Server Running")
+print("Model Loaded. Server Running.")
 
 if __name__ == "__main__":  #if running on development
-    app.run(threaded=False)
+    app.run(debug=True, threaded=False, host='0.0.0.0')
+

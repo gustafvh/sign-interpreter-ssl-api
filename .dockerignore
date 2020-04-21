@@ -1,0 +1,13 @@
+.git
+.gitignore
+.gitattributes
+
+/api_env/*
+testRequest.py
+*.jpg
+
+node_modules
+npm-debug.log
+README.md
+LICENSE
+.vscode
