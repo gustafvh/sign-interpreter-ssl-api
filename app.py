@@ -5,6 +5,8 @@ from tensorflow.keras import models
 from PIL import Image
 import numpy as np
 import flask
+from flask_cors import CORS
+
 import io
 
 # Boot up production server with:
@@ -20,6 +22,7 @@ import io
 # {"letterSent":"H","predictions":[["H",100.0],["C",0.0],["F",0.0]]}
 
 app = flask.Flask(__name__)
+CORS(app)
 model = None
 
 def load_model():
@@ -48,6 +51,7 @@ def index():
 @app.route("/predict", methods=["POST"])
 
 def predict():
+    response = {'success': False}
     if flask.request.method == "POST":
         if flask.request.files.get("image"):
             image = flask.request.files["image"].read()
@@ -100,6 +104,7 @@ def serialisePreds(predictions):
 @app.errorhandler(500)
 def internal_server_error(error):
     response = {'success': False}
+    print(error)
     return flask.jsonify(response)
 
 print("Loading Model...")
