@@ -27,7 +27,7 @@ model = None
 
 def load_model():
     global model
-    model = models.load_model("./assets/model-quiet-dew-32.h5")
+    model = models.load_model("./assets/dark-snowball-202.h5")
 
 
 def prepare_image(image, target):
@@ -43,10 +43,11 @@ def prepare_image(image, target):
     return image
 
 
-@app.route("/", methods=["POST"])
+@app.route("/", methods=["GET"])
 
 def index():
-    return flask.jsonify("Connected to API.")
+    return "<p>Welcome to Sign Interpreter SSL API. More information can be found here: " \
+           "<a href=https://github.com/gustafvh/sign-interpreter-ssl-api>https://github.com/gustafvh/sign-interpreter-ssl-api</a> <p>"
 
 @app.route("/predict", methods=["POST"])
 

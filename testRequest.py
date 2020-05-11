@@ -1,6 +1,7 @@
 import requests
 
-API_URL = 'http://35.198.151.110/predict'
+API_URL = 'https://sign-interpreter.com/predict'
+#API_URL = 'http://35.198.151.110/predict'
 #API_URL = 'http://localhost:5000/predict'
 IMAGE_PATH = "./assets/H2.jpg"
 
